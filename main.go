@@ -39,8 +39,10 @@ func main() {
 	router := gin.Default()
 	api := router.Group("api/v1")
 
+	api.POST("/world/email-checkers", userHandler.EmailAvailability)
 	api.POST("/register", userHandler.RegisterUser)
 	api.POST("/login", userHandler.LoginUser)
+	api.POST("/user/fetch", userHandler.User)
 
 	router.Run()
 }

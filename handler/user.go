@@ -79,3 +79,52 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (h *userHandler) EmailAvailability(c *gin.Context) {
+	var input user.EmailExistsInput
+
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		errors := helpers.FormatValidationError(err)
+
+		errorMessage := gin.H{"errors": errors}
+
+		response := helpers.APIResponse("Email checked filed.", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	isEmailAvailable, err := h.userService.EmailExists(input)
+	if err != nil {
+		errorMessage := gin.H{"errors": "Server Error."}
+
+		response := helpers.APIResponse("Email check failed.", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	data := gin.H{
+		"is_available": isEmailAvailable,
+	}
+
+	var metaMessage string
+	if isEmailAvailable {
+		metaMessage = "Email is available"
+	} else {
+		metaMessage = "Email has been registration"
+	}
+
+	response := helpers.APIResponse(metaMessage, http.StatusOK, "success", data)
+	c.JSON(http.StatusOK, response)
+
+}
+
+func (h *userHandler) User(c *gin.Context) {
+	currentUser := c.MustGet("User").(user.User)
+
+	formatter := user.FormatUser(currentUser, "")
+
+	response := helpers.APIResponse("User fetch data", http.StatusOK, "success", formatter)
+
+	c.JSON(http.StatusOK, response)
+}
