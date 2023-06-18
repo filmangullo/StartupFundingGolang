@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"startupfunding/helpers"
 	"startupfunding/user"
@@ -125,6 +126,46 @@ func (h *userHandler) User(c *gin.Context) {
 	formatter := user.FormatUser(currentUser, "")
 
 	response := helpers.APIResponse("User fetch data", http.StatusOK, "success", formatter)
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *userHandler) UploadAvatar(c *gin.Context) {
+	file, err := c.FormFile("avatar")
+
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helpers.APIResponse("Filed to upload avatar", http.StatusBadRequest, "error", data)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	userID := 1
+
+	path := fmt.Sprintf("storage/img/%d-%s", userID, file.Filename)
+
+	err = c.SaveUploadedFile(file, path)
+
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helpers.APIResponse("Filed to upload image avatar", http.StatusBadRequest, "error", data)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	_, err = h.userService.SaveAvatar(userID, path)
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helpers.APIResponse("User filed to upload image avatar", http.StatusBadRequest, "error", data)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	data := gin.H{"is_uploaded": true}
+	response := helpers.APIResponse("Avatar uploaded", http.StatusOK, "success", data)
 
 	c.JSON(http.StatusOK, response)
 }
