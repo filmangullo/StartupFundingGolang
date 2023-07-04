@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"startupfunding/auth"
+	"startupfunding/campaign"
 	"startupfunding/handler"
 	"startupfunding/helpers"
 	"startupfunding/user"
@@ -38,6 +40,11 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	campaignRepository := campaign.NewRepository(db)
+
+	campaigns, err := campaignRepository.FindByUserID(1)
+
+	fmt.Println(len(campaigns))
+
 	userService := user.NewService(userRepository)
 	authService := auth.NewService()
 
