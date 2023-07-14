@@ -4,6 +4,7 @@ import "time"
 
 type Campaign struct {
 	ID               int
+	slug             string
 	UserID           int
 	Name             string
 	ShortDescription string
@@ -12,7 +13,6 @@ type Campaign struct {
 	BackerCount      int
 	GoalAmount       int
 	CurrentAmount    int
-	slug             string
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	CampaignImages   []CampaignImage
